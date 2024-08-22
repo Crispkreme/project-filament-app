@@ -1,0 +1,53 @@
+version: '3'
+services:
+  laravel.test:
+    build:
+      context: /mnt/marvinramos/projects/filament-app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:YOUR_APP_KEY
+    volumes:
+      - /mnt/marvinramos/projects/filament-app:/var/www/html
+    depends_on:
+      - mysql
+      - redis
+      - mailhog
+    networks:
+      - laravel
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: sail
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - laravel
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge
